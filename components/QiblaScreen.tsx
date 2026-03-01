@@ -32,17 +32,22 @@ export default function QiblaScreen() {
     if (typeof DeviceOrientationEvent !== "undefined" && typeof (DeviceOrientationEvent as any).requestPermission === "function") {
       // iOS 13+ requires permission
       setHasPermission(false);
-    } else if ("ondeviceorientationabsolute" in window) {
-      setHasPermission(true);
-      window.addEventListener("deviceorientationabsolute", handleOrientation as any);
-    } else if ("ondeviceorientation" in window) {
-      setHasPermission(true);
-      window.addEventListener("deviceorientation", handleOrientation);
+    } else {
+      // Check for device orientation support
+      const win = window as any;
+      if ("ondeviceorientationabsolute" in win) {
+        setHasPermission(true);
+        win.addEventListener("deviceorientationabsolute", handleOrientation);
+      } else if ("ondeviceorientation" in win) {
+        setHasPermission(true);
+        win.addEventListener("deviceorientation", handleOrientation);
+      }
     }
 
     return () => {
-      window.removeEventListener("deviceorientationabsolute", handleOrientation as any);
-      window.removeEventListener("deviceorientation", handleOrientation);
+      const win = window as any;
+      win.removeEventListener("deviceorientationabsolute", handleOrientation);
+      win.removeEventListener("deviceorientation", handleOrientation);
     };
   }, []);
 
